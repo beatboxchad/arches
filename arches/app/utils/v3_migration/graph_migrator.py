@@ -242,7 +242,7 @@ class ResourceModelMigrator:
 
         resource = list(v4_nodes)
         outrows = []
-        names,name_types = [],[]
+        names, name_types = [], []
 
         while len(resource) > 0:
             logger.debug("-"*80)
@@ -251,11 +251,11 @@ class ResourceModelMigrator:
 
             for index, node in enumerate(resource):
 
-                node_name, value = node[0],node[1]
+                node_name, value = node[0], node[1]
 
-                ## pass the name and name types off into a different list
-                ## so they can be added to individual rows and primary can
-                ## always be first.
+                # pass the name and name types off into a different list
+                # so they can be added to individual rows and primary can
+                # always be first.
                 if node_name == "Name" or node_name == "Name Type":
                     if node_name == "Name":
                         names.append(node)
@@ -277,13 +277,13 @@ class ResourceModelMigrator:
 
             outrows.append(newrow)
 
-            ## strip out nodes that were just added and run the loop again
-            resource = [v for i,v in enumerate(resource) if not i in added]
+            # strip out nodes that were just added and run the loop again
+            resource = [v for i, v in enumerate(resource) if not i in added]
 
-        ## creating special rows to handle name/name type to ensure that the
-        ## primary name is the first row. this is for display name indexing.
+        # creating special rows to handle name/name type to ensure that the
+        # primary name is the first row. this is for display name indexing.
         primary_uuid = "a4c88313-52c5-4b6a-9579-3fc5aad17335"
-        names_concat = zip(names,name_types)
+        names_concat = zip(names, name_types)
         for pair in names_concat:
             newrow = {
                 u"ResourceID": resource_id,
@@ -291,7 +291,7 @@ class ResourceModelMigrator:
                 pair[1][0]: pair[1][1],
             }
             if pair[1][1] == primary_uuid:
-                outrows.insert(0,newrow)
+                outrows.insert(0, newrow)
                 logger.debug(newrow)
             else:
                 outrows.append(newrow)
@@ -428,7 +428,7 @@ class Migration:
                 fieldnames = migrator.converter.v4_fieldnames
                 writer = csv.DictWriter(csvfile,
                                         fieldnames=fieldnames)
-                                        #encoding='utf-8')
+                # encoding='utf-8')
                 writer.writeheader()
                 rows = migrator.migrate()
                 for row in rows:
@@ -441,7 +441,8 @@ def get_logger(level='info'):
                                      datefmt='%m-%d-%y %H:%M:%S')
     logger = logging.getLogger()
 
-    fileHandler = logging.FileHandler("{0}/{1}.log".format('logs', 'business_data_conversion'))
+    fileHandler = logging.FileHandler(
+        "{0}/{1}.log".format('logs', 'business_data_conversion'))
     fileHandler.setFormatter(logFormatter)
     logger.addHandler(fileHandler)
 
@@ -480,6 +481,7 @@ if __name__ == "__main__":
 
     logger = get_logger(lvl)
 
-    migrator = Migration(args.v3_data, args.mappings, args.output, args.process_model)
+    migrator = Migration(args.v3_data, args.mappings,
+                         args.output, args.process_model)
 
     migrator.migrate_data()
