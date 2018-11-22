@@ -21,6 +21,8 @@ PyLD[requests]==1.0.3
 pyprind==2.11.2
 pycryptodome<4.0.0,>=3.3.1
 urllib3==1.21.1
+fuzzywuzzy==0.16.0
+python-Levenshtein==0.12.0
 
 # Leave the following line commented so that pip install will ignore this
 # The installer uses the following line to download the proper version of ES
