@@ -319,30 +319,35 @@ class ResourceModelMigrator:
 
 
 class Resource:
-    # knows its data and ID
     def __init__(self, data):
         self._uuid = data['entityid']
         self._v3data = [data]
 
-        def process_children(children=self._v3data, processed=[]):
-
+        def process_children(children=self._v3data,
+                             processed={},
+                             parent_id=self._uuid):
+            """Flatten the graph, preserving graph structure metadata"""
             for child in children:
                 grandchildren = child['child_entities']
 
                 field_name = child['entitytypeid']
+                field_data = child['value']
+                entity_id = child['entityid']
+                datatype = child['businesstablename']
+                if datatype == u'':
+                    datatype = 'semantic'
 
                 if len(grandchildren) > 0:
                     process_children(grandchildren,
-                                     processed)
+                                     processed,
+                                     child['entityid'],
+                                     )
 
-                field_data = child['value']
-
-                # don't attempt to migrate semantic nodes
-                if (field_name is not None and
-                        child['businesstablename'] != ""):
-
-                    processed.append((
-                        field_name, field_data))
+                processed[entity_id] = {'node_name': field_name,
+                                        'node_data': field_data,
+                                        'parent': parent_id,
+                                        'datatype': datatype
+                                        }
 
             return processed
         self._nodes = process_children()
