@@ -42,6 +42,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 
+
 class BusinessDataImporter(object):
 
     def __init__(self, file=None, mapping_file=None, relations_file=None):
@@ -85,7 +86,8 @@ class BusinessDataImporter(object):
         for path in relations_file:
             if os.path.exists(path):
                 if isfile(join(path)):
-                    self.relations = csv.DictReader(open(relations_file[0], 'r'))
+                    self.relations = csv.DictReader(
+                        open(relations_file[0], 'r'))
 
         for path in mapping_file:
             if os.path.exists(path):
@@ -108,14 +110,17 @@ class BusinessDataImporter(object):
                             if 'business_data' in archesfile.keys():
                                 self.business_data = archesfile['business_data']
                     elif self.file_format == 'csv':
-                        data = unicodecsv.DictReader(open(file[0], 'rU'), encoding='utf-8-sig', restkey='ADDITIONAL', restval='MISSING')
+                        data = unicodecsv.DictReader(open(
+                            file[0], 'rU'), encoding='utf-8-sig', restkey='ADDITIONAL', restval='MISSING')
                         self.business_data = list(data)
                     elif self.file_format == 'zip':
                         shp_zipfile = os.path.basename(path)
                         shp_zipfile_name = os.path.splitext(shp_zipfile)[0]
-                        unzip_dir = os.path.join(os.path.dirname(path),shp_zipfile_name)
-                        unzip_file(path,unzip_dir)
-                        shp = [i for i in os.listdir(unzip_dir) if i.endswith(".shp")]
+                        unzip_dir = os.path.join(
+                            os.path.dirname(path), shp_zipfile_name)
+                        unzip_file(path, unzip_dir)
+                        shp = [i for i in os.listdir(
+                            unzip_dir) if i.endswith(".shp")]
                         if len(shp) == 0:
                             print '*'*80
                             print "ERROR: There is no shapefile in this zipfile."
@@ -126,10 +131,10 @@ class BusinessDataImporter(object):
                             print "ERROR: There are multiple shapefiles in this zipfile. Please load each individually:"
                             for s in shp:
                                 print "\npython manage.py packages -o import_business_data -s {0} -c {1} -ow [append or overwrite]".format(
-                                    os.path.join(unzip_dir,s),mapping_file[0])
+                                    os.path.join(unzip_dir, s), mapping_file[0])
                             print '*'*80
                             exit()
-                        shp_path = os.path.join(unzip_dir,shp[0])
+                        shp_path = os.path.join(unzip_dir, shp[0])
                         self.business_data = self.shape_to_csv(shp_path)
                     elif self.file_format == 'shp':
                         self.business_data = self.shape_to_csv(path)
@@ -138,7 +143,14 @@ class BusinessDataImporter(object):
             else:
                 print path + ' is not a valid path'
 
-    def import_business_data(self, file_format=None, business_data=None, mapping=None, overwrite='append', bulk=False, create_concepts=False, create_collections=False):
+    def import_business_data(self,
+                             file_format=None,
+                             business_data=None,
+                             mapping=None,
+                             overwrite='append',
+                             bulk=False,
+                             create_concepts=False,
+                             create_collections=False):
         reader = None
         start = time()
         cursor = connection.cursor()
@@ -156,7 +168,8 @@ class BusinessDataImporter(object):
             elif file_format == 'csv' or file_format == 'shp' or file_format == 'zip':
                 if mapping != None:
                     reader = CsvReader()
-                    reader.import_business_data(business_data=business_data, mapping=mapping, overwrite=overwrite, bulk=bulk, create_concepts=create_concepts, create_collections=create_collections)
+                    reader.import_business_data(business_data=business_data, mapping=mapping, overwrite=overwrite,
+                                                bulk=bulk, create_concepts=create_concepts, create_collections=create_collections)
                 else:
                     print '*'*80
                     print 'ERROR: No mapping file detected. Please indicate one with the \'-c\' paramater or place one in the same directory as your business data.'
@@ -164,7 +177,8 @@ class BusinessDataImporter(object):
                     sys.exit()
 
             elapsed = (time() - start)
-            print 'Time to import_business_data = {0}'.format(datetime.timedelta(seconds=elapsed))
+            print 'Time to import_business_data = {0}'.format(
+                datetime.timedelta(seconds=elapsed))
 
             reader.report_errors()
 
@@ -172,7 +186,8 @@ class BusinessDataImporter(object):
             datatype_factory = DataTypeFactory()
             datatypes = DDataType.objects.all()
             for datatype in datatypes:
-                datatype_instance = datatype_factory.get_instance(datatype.datatype)
+                datatype_instance = datatype_factory.get_instance(
+                    datatype.datatype)
                 datatype_instance.after_update_all()
 
     def shape_to_csv(self, shp_path):
